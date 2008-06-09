@@ -1,0 +1,29 @@
+--- 
+abstract: Provides todo.pl, a command-line interface to Hiveminder
+author: 
+  - Best Practical Solutions, LLC
+distribution_type: module
+generated_by: Module::Install version 0.70
+license: unknown
+meta-spec: 
+  url: http://module-build.sourceforge.net/META-spec-v1.3.html
+  version: 1.3
+name: App-Todo
+no_index: 
+  directory: 
+    - inc
+recommends: 
+  Term::ANSIColor: 0
+requires: 
+  Email::Address: 0
+  Encode: 0
+  Fcntl: 0
+  File::Temp: 0
+  Getopt::Long: 0
+  LWP::UserAgent: 0
+  Number::RecordLocator: 0
+  Pod::Usage: 0
+  Term::Encoding: 0
+  Term::ReadKey: 0
+  YAML: 0
+version: 0.93
