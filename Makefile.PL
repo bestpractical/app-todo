@@ -3,7 +3,7 @@ use inc::Module::Install;
 
 # Define metadata
 name            'App-Todo';
-abstract        'Provides todo.pl, a command-line interface to Hiveminder';
+abstract_from   'lib/App/Todo.pm';
 author          'Best Practical Solutions, LLC';
 version_from    'bin/todo.pl';
 
