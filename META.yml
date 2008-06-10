@@ -12,7 +12,6 @@ name: App-Todo
 no_index: 
   directory: 
     - inc
-    - t
 recommends: 
   Term::ANSIColor: 0
 requires: 
@@ -27,4 +26,4 @@ requires:
   Term::Encoding: 0
   Term::ReadKey: 0
   YAML: 0
-version: 0.94
+version: 0.95

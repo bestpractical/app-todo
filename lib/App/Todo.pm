@@ -1,5 +1,7 @@
 package App::Todo;
 
+our $VERSION = 0.95;
+
 =head1 NAME
 
 App::Todo - Provides todo.pl, a command-line interface to Hiveminder

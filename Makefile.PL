@@ -5,7 +5,8 @@ use inc::Module::Install;
 name            'App-Todo';
 abstract_from   'lib/App/Todo.pm';
 author          'Best Practical Solutions, LLC';
-version_from    'bin/todo.pl';
+#version_from    'bin/todo.pl';
+version_from    'lib/App/Todo.pm';
 
 requires 'Encode';
 requires 'YAML';

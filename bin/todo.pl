@@ -13,6 +13,7 @@ emulates the interface of Lifehacker.com's todo.sh script.
 
 =cut
 
+use App::Todo;
 use Config;
 use Encode ();
 use YAML ();
@@ -25,7 +26,7 @@ use Fcntl qw(:mode);
 use File::Temp;
 
 our $CONFFILE = "$ENV{HOME}/.hiveminder";
-our $VERSION = 0.94;
+our $VERSION = $App::Todo::VERSION;
 our %config = ();
 our $ua = LWP::UserAgent->new;
 our $locator = Number::RecordLocator->new();
