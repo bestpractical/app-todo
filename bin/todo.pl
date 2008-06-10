@@ -25,7 +25,7 @@ use Fcntl qw(:mode);
 use File::Temp;
 
 our $CONFFILE = "$ENV{HOME}/.hiveminder";
-our $VERSION = 0.93;
+our $VERSION = 0.94;
 our %config = ();
 our $ua = LWP::UserAgent->new;
 our $locator = Number::RecordLocator->new();
