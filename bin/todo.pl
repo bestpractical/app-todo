@@ -408,21 +408,37 @@ sub hide_task {
 }
 
 sub comment_task {
-    my $task = get_task_id('comment on');
-    if(-t STDIN) {
-        print "Type your comment now. End with end-of-file or a dot on a line by itself.\n";
+    my $task   = get_task_id('comment on');
+    my $editor = $ENV{EDITOR} || $ENV{VISUAL};
+    pod2usage(-message => "You need to specify a texteditor as \$EDITOR or \$VISUAL.",
+              -exitval => 1
+    ) unless $editor;
+
+    my $fh = File::Temp->new( UNLINK => 0 );
+    my $fn = $fh->filename;
+    $fh->close;
+
+    # Call the editor with the file as the first arg
+    system( "$editor $fn" );
+
+    # Slurp in the content
+    open (my $file, "<:utf8", $fn) || die("Can't open file '$fn': $!");
+    my $content;
+    {
+        local $/ = undef;
+        $content = <$file>;
     }
-    my $comment;
-    while(<STDIN>) {
-        chomp;
-        last if $_ eq ".";
-        $comment .= "\n$_";
-    }
+    close($file);
 
     my $result = call(UpdateTask =>
                       id         => $task,
-                      comment    => $comment);
-    result_ok($result, "Commented on task");
+                      comment    => $content);
+
+    result_ok($result,
+              "Commented on task",
+              "Your comment is saved in the temporary file $fn.");
+    
+    unlink $fn;
 }
 
 sub get_task_id {
