@@ -26,4 +26,4 @@ requires:
   Term::Encoding: 0
   Term::ReadKey: 0
   YAML: 0
-version: 0.95
+version: 0.96

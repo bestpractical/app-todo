@@ -94,7 +94,7 @@ sub main {
     setup_config();
 
     # If they don't want color, switch it off
-    if ( $config{color} eq 'off' ) {
+    if ( defined $config{color} and $config{color} eq 'off' ) {
         *color   = *_color_passthru;
         *colored = *_colored_passthru;
     }
