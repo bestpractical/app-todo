@@ -777,7 +777,7 @@ __END__
         Move task 3G into the hiveminders group, set its tags to
         "cli", and change the summary.
 
-  todo.pl --tag "" 4J
+  todo.pl --tag "" edit 4J
         Delete all tags from task 4J
 
   todo.pl tag 4J home
