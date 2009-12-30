@@ -1,6 +1,6 @@
 package App::Todo;
 
-our $VERSION = 0.96;
+our $VERSION = 0.97;
 
 =head1 NAME
 

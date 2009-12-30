@@ -34,6 +34,8 @@ our $default_query = "not/complete/starts/before/tomorrow/accepted/but_first/not
 our $unaccepted_query = "unaccepted/not/complete";
 our $requests_query = "requestor/me/not/owner/me/not/complete";
 our %args;
+our $command;
+our %commands;
 
 # Setup our user agent string (useful for feedback)
 $ua->agent("todo.pl/$VERSION ($Config{osname} $Config{osvers}; perl v$Config{version}, $Config{archname}) ");
@@ -112,7 +114,7 @@ sub main {
 
     do_login() or die("Bad username/password -- edit $CONFFILE and try again.");
 
-    my %commands = (
+    %commands = (
         list      => \&list_tasks,
         ls        => \&list_tasks,
         add       => \&add_task,
@@ -139,7 +141,7 @@ sub main {
         feedback  => \&feedback,
        );
     
-    my $command = shift @ARGV || "list";
+    $command = shift @ARGV || "list";
     $commands{$command} or pod2usage(-message => "Unknown command: $command", -exitval => 2);
 
     $commands{$command}->();
@@ -622,6 +624,12 @@ sub result_ok {
 
     if(!$result->{failure}) {
         print ref($message) ? $message->() . "\n" : "$message\n";
+    } elsif ($result->{message} =~ /^Access Denied/) {
+        warn("Session expired, attempting to re-authenticate\n");
+        delete $config{sid};
+        save_config();
+        do_login() or die("Bad username/password -- edit $CONFFILE and try again.");
+        $commands{$command}->();
     } else {
         my $death = YAML::Dump($result);
         $death .= "\n$error\n" if defined $error;
