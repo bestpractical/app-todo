@@ -24,6 +24,7 @@ use Pod::Usage;
 use Email::Address;
 use Fcntl qw(:mode);
 use File::Temp;
+use Digest::MD5 qw(md5_hex);
 
 our $CONFFILE = "$ENV{HOME}/.hiveminder";
 our $VERSION = $App::Todo::VERSION;
@@ -559,9 +560,18 @@ with the server.
 
 sub do_login {
     return 1 if $config{sid};
-    my $result = call(Login =>
-                      address  => $config{email},
-                      password => $config{password});
+    my $result = call(GeneratePasswordToken =>
+                      address => $config{email});
+    if ($result->{failure}) {
+        die $result->{message};
+    }
+    my $salt = $result->{_content}{salt};
+    my $token = $result->{_content}{token};
+    my $hashed_password = md5_hex($token . ' ' . md5_hex($config{password} . $salt));
+    $result = call(Login =>
+                   address => $config{email},
+                   hashed_password => $hashed_password,
+                   token => $token);
     if(!$result->{failure}) {
         $config{sid} = get_session_id();
         save_config();
