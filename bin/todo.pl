@@ -722,7 +722,7 @@ sub supports_color {
         return 1 if not $@;
     }
     else {
-        return 1 if $ENV{'TERM'} =~ /^(xterm|rxvt|linux|ansi)/;
+        return 1 if $ENV{'TERM'} =~ /^(xterm|rxvt|linux|ansi|screen)/;
         return 1 if $ENV{'COLORTERM'};
     }
     return 0; 
