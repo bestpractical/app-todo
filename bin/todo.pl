@@ -279,14 +279,14 @@ sub list_tasks {
     for my $t (@$tasks) {
         printf "#%4s ", $locator->encode($t->{id});
 
-        print colored('(' . priority_to_string($t->{priority}) . ') ',
-                      priority_to_color($t->{priority}))
+        print colored('(' . priority_to_string($t->{priority}) . ')',
+                      priority_to_color($t->{priority})), ' '
             if $t->{priority} != 3;
 
         print colored($t->{summary}, priority_to_color($t->{priority}));
         
-        print colored(" (Due " . $t->{due} . ")",
-                      (overdue($t->{due}) ? 'magenta' : 'dark'))
+        print ' ', colored("(Due " . $t->{due} . ")",
+                           (overdue($t->{due}) ? 'magenta' : 'dark'))
             if $t->{due};
 
         if ($t->{tags}) {
