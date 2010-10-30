@@ -289,9 +289,9 @@ sub list_tasks {
                       (overdue($t->{due}) ? 'magenta' : 'dark'))
             if $t->{due};
 
-        print color('dark');
         if ($t->{tags}) {
-            print ' [' . $t->{tags} . ']';
+            print color('reset'), ' ', color('dark');
+            print '[' . $t->{tags} . ']';
         }
 
         $t->{owner} =~ s/<nobody>/<nobody\@localhost>/;
@@ -303,7 +303,8 @@ sub list_tasks {
         my $not_owner = lc $owner->address ne lc $config{email};
         my $not_requestor = lc $requestor->address ne lc $config{email};
         if( $t->{group} || $not_owner || $not_requestor ) {
-            print ' (';
+            print color('reset'), ' ', color('dark');
+            print '(';
             print join(", ",
                        $t->{group} || "personal",
                        $not_requestor ? "for " . $requestor->name : (),
