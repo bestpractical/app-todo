@@ -10,6 +10,7 @@ version_from    'lib/App/Todo.pm';
 
 requires 'Encode';
 requires 'YAML';
+recommends 'YAML::Syck' => '0.71';
 requires 'LWP::UserAgent';
 requires 'Number::RecordLocator';
 requires 'Getopt::Long';

@@ -18,7 +18,8 @@ no_index:
     - inc
 recommends:
   Term::ANSIColor: 0
-requires: 
+  YAML::Syck: 0.71
+requires:
   Email::Address: 0
   Encode: 0
   Fcntl: 0

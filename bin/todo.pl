@@ -16,7 +16,6 @@ emulates the interface of Lifehacker.com's todo.sh script.
 use App::Todo;
 use Config;
 use Encode ();
-use YAML ();
 use LWP::UserAgent;
 use Number::RecordLocator;
 use Getopt::Long;
@@ -25,6 +24,26 @@ use Email::Address;
 use Fcntl qw(:mode);
 use File::Temp;
 use Digest::MD5 qw(md5_hex);
+
+BEGIN {
+    local $@;
+    no strict 'refs';
+    no warnings 'once';
+
+    if ( eval { require YAML::Syck; YAML::Syck->VERSION(0.71) } ) {
+        $YAML::Syck::ImplicitUnicode++;
+        *Load     = *YAML::Syck::Load;
+        *Dump     = *YAML::Syck::Dump;
+        *LoadFile = *YAML::Syck::LoadFile;
+        *DumpFile = *YAML::Syck::DumpFile;
+    } else {
+        require YAML;
+        *Load     = *YAML::Load;
+        *Dump     = *YAML::Dump;
+        *LoadFile = *YAML::LoadFile;
+        *DumpFile = *YAML::DumpFile;
+    }
+}
 
 our $CONFFILE = "$ENV{HOME}/.hiveminder";
 our $VERSION = $App::Todo::VERSION;
@@ -176,7 +195,7 @@ sub check_config_perms {
 
 sub load_config {
     return unless(-e $CONFFILE);
-    %config = %{YAML::LoadFile($CONFFILE) || {}};
+    %config = %{LoadFile($CONFFILE) || {}};
     my $sid = $config{sid};
     if($sid) {
         my $uri = URI->new($config{site});
@@ -233,7 +252,7 @@ END_WELCOME
 }
 
 sub save_config {
-    YAML::DumpFile($CONFFILE, \%config);
+    DumpFile($CONFFILE, \%config);
     chmod 0600, $CONFFILE;
 }
 
@@ -596,7 +615,7 @@ sub download_tasks {
         die $result->{message};
     }
 
-    return YAML::Load($result->{_content}{result});
+    return Load($result->{_content}{result});
 }
 
 sub call ($@) {
@@ -612,7 +631,7 @@ sub call ($@) {
     );
 
     if ( $res->is_success ) {
-        return YAML::Load( Encode::decode_utf8($res->content) )->{$moniker};
+        return Load( Encode::decode_utf8($res->content) )->{$moniker};
     } else {
         die $res->status_line;
     }
@@ -642,7 +661,7 @@ sub result_ok {
         do_login() or die("Bad username/password -- edit $CONFFILE and try again.");
         $commands{$command}->();
     } else {
-        my $death = YAML::Dump($result);
+        my $death = Dump($result);
         $death .= "\n$error\n" if defined $error;
         die $death;
     }
