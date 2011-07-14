@@ -31,5 +31,6 @@ features(
 
 install_script 'bin/todo.pl';
 auto_install();
+sign;
 WriteAll;
 
