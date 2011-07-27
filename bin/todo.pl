@@ -283,7 +283,7 @@ sub list_tasks {
     my $tag;
     $query .= "/tag/$tag" while $tag = shift @{$args{tag}};
 
-    for my $key qw(group priority due) {
+    for my $key (qw(group priority due)) {
         $query .= "/$key/$args{$key}" if $args{$key};
     }
 
@@ -477,7 +477,7 @@ sub download_textfile {
     my $tag;
     $query .= "/tag/$tag" while $tag = shift @{$args{tag}};
 
-    for my $key qw(group priority due) {
+    for my $key (qw(group priority due)) {
         $query .= "/$key/$args{$key}" if $args{$key};
     }
 
