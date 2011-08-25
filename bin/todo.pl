@@ -24,6 +24,7 @@ use Email::Address;
 use Fcntl qw(:mode);
 use File::Temp;
 use Digest::MD5 qw(md5_hex);
+use File::Spec;
 
 BEGIN {
     local $@;
@@ -46,6 +47,7 @@ BEGIN {
 }
 
 our $CONFFILE = "$ENV{HOME}/.hiveminder";
+our @EXTRACONF;
 our $VERSION = $App::Todo::VERSION;
 our %config = ();
 our $ua = LWP::UserAgent->new;
@@ -194,8 +196,61 @@ sub check_config_perms {
 }
 
 sub load_config {
+    # It might be tempting to move past this return if the file's not there.
+    # But no local globs will work unless there's an extra_config_glob option
+    # set somewhere.
+
     return unless(-e $CONFFILE);
     %config = %{LoadFile($CONFFILE) || {}};
+
+    my @extra_config_globs;
+
+    # NOTE: this is a glob so I can use ".git/hm .git/hiveminder .hiveminder"
+    # and you can use .hiveminder and we're both happy
+
+    if( $config{extra_config_glob} ) {
+        if( $config{extra_config_recurse} and $config{extra_config_recurse} ne "off" ) {
+
+            my $last;
+
+            # build a list of directories where we might find matching hiveminder files
+            my @dirs = map { $last = File::Spec->catdir($last, $_) }
+                    File::Spec->splitdir( File::Spec->rel2abs(".") );
+
+            # turn the list into globs
+            push @extra_config_globs, map { File::Spec->catdir($_, $config{extra_config_glob}) } @dirs;
+
+        } else {
+            # just add the one glob
+            push @extra_config_globs, $config{extra_config_glob};
+        }
+    }
+
+    for my $glob ( @extra_config_globs ) {
+        for my $file ( grep { -f $_ } glob($glob) ) {
+            my %config_merge = %{ LoadFile($file)            || {} };
+            my %args_merge   = %{ delete $config_merge{args} || {} };
+
+            # XXX: should these concatenate sometimes?
+
+            # merge in config options, like email and sid
+            $config{$_} = $config_merge{$_} for keys %config_merge;
+
+            # merge in favorite command line arguments, like --tag todo.pl
+            $args{$_} = $args_merge{$_} for keys %args_merge;
+
+            if( $config_merge{email} or $config_merge{password} or $config_merge{site} ) {
+                unless( $config_merge{sid} ) {
+                    # If the most recent config has account info, we should
+                    # ditch any sid we might have gotten from above
+                    delete $config{sid};
+                }
+            }
+
+            push @EXTRACONF, {config_merge=>\%config_merge, args_merge=>\%args_merge, filename=>$file};
+        }
+    }
+
     my $sid = $config{sid};
     if($sid) {
         my $uri = URI->new($config{site});
@@ -252,6 +307,19 @@ END_WELCOME
 }
 
 sub save_config {
+    for(reverse @EXTRACONF) {
+        my $cm = $_->{config_merge};
+        if( $cm->{site} or $cm->{email} or $cm->{password} or $cm->{sid} ) {
+            my %tmp = %{ $_->{config_merge} };
+            $tmp{args} = $_->{args_merge} if keys %{$_->{args_merge}};
+            $tmp{sid} = $config{sid}; # this is the point of saving the config afterall
+            DumpFile($_->{filename}, \%tmp);
+            chmod 0600, $_->{filename};
+            # If this config merge has login info, then this is the only config we're saving …
+            return;
+        }
+    }
+
     DumpFile($CONFFILE, \%config);
     chmod 0600, $CONFFILE;
 }
